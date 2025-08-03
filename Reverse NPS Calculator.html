@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reverse NPS Calculator</title>
+  <style>
+    html, body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0 10px 20px 10px;
+      background: #fffbe7;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    header {
+      background-color: orange;
+      color: white;
+      width: 100%;
+      padding: 9px 0;
+      text-align: center;
+      font-size: 1.2rem; /* was 1.8rem */
+      font-weight: bold;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      margin-bottom: 18px;
+      user-select: none;
+      letter-spacing: 1px;
+    }
+    .main-content {
+      display: flex;
+      max-width: 745px;
+      width: 100%;
+      gap: 16px;
+      margin: 0 auto 0 auto;
+      align-items: flex-start;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .container {
+      flex: 1;
+      background: #fafafa;
+      padding: 15px 13px 15px 13px; /* tighter */
+      border-radius: 11px;
+      border: 1px solid #e6e6e6;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      min-width: 250px;
+      max-width: 320px; /* fixed width */
+      box-sizing: border-box;
+    }
+    h2 {
+      color: #31506c;
+      margin: 5px 0 14px 0;
+      text-align: center;
+      font-size: 1.1rem; /* was 1.3rem */
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 2px;
+      margin-top: 10px;
+      color: #444;
+      font-size: 0.97rem; /* was 1.09rem */
+    }
+    input {
+      padding: 4px 7px;
+      width: 100%;
+      font-size: 0.95rem; /* was 1.15rem */
+      border-radius: 4px;
+      border: 1.2px solid #ccc;
+      margin-bottom: 0;
+    }
+    input:focus {
+      border-color: #31506c;
+      outline: none;
+      background-color: #f0f8ff;
+    }
+    button {
+      margin-top: 17px;
+      width: 100%;
+      background: #31506c;
+      color: white;
+      padding: 8px 0;
+      font-weight: bold;
+      font-size: 1.01rem; /* was 1.15rem */
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #24435a;
+    }
+    .output {
+      flex: 1;
+      background: #e7f2ff;
+      padding: 13px 12px;
+      border-radius: 9px;
+      font-size: 1.01rem; /* was 1.15rem */
+      color: #0c7f2a;
+      min-height: 170px;
+      box-shadow: inset 0 0 6px #bfd7ff;
+      box-sizing: border-box;
+      line-height: 1.32;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-left: 0px;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .note {
+      margin: 13px auto 0 auto;
+      font-size: 0.82rem; /* was 0.98rem */
+      color: #555;
+      line-height: 1.29;
+      border-top: 1px solid #ddd;
+      padding-top: 9px;
+      max-width: 650px;
+      text-align: left;
+      box-sizing: border-box;
+    }
+    .note ul {
+      margin: 4px 0 0 12px;
+      padding: 0 0 0 10px;
+    }
+    @media (max-width: 700px) {
+      .main-content { flex-direction: column; gap: 0; }
+      .output, .container { max-width: 100%; min-width: 0; }
+      .output { margin-top: 17px;}
+    }
+  </style>
+</head>
+<body>
+  <header>Boorla Calculators</header>
+  <div class="main-content">
+    <div class="container">
+      <h2>Reverse NPS Calculator</h2>
+      <label for="age">Current Age (years):</label>
+      <input type="number" id="age" min="18" max="59" value="30" />
+
+      <label for="pension">Desired Monthly Pension at 60 (₹):</label>
+      <input type="number" id="pension" min="1000" step="500" value="30000" />
+
+      <label for="annuity_pct">Annuity % at retirement (40–100):</label>
+      <input type="number" id="annuity_pct" min="40" max="100" step="1" value="40" />
+
+      <label for="accumulation_rate">Annual Return During Accumulation (%):</label>
+      <input type="number" id="accumulation_rate" min="0" max="20" step="0.1" value="9" />
+
+      <label for="annuity_rate">Annual Return from Annuity (%):</label>
+      <input type="number" id="annuity_rate" min="0" max="20" step="0.1" value="6" />
+
+      <button onclick="calculateNPS()">Calculate Required Monthly Contribution</button>
+    </div>
+    <div class="output" id="result"></div>
+  </div>
+  <div class="note">
+    <b>Assumptions:</b>
+    <ul>
+      <li>Pension is fixed, paid monthly for life after 60 years.</li>
+      <li>Returns are compounded monthly for accumulation, annually for annuity.</li>
+      <li>Tweak any input to match your expectations.</li>
+    </ul>
+    <i>(Refresh page for defaults or adjust inputs as needed.)</i>
+  </div>
+  <script>
+    function calculateNPS() {
+      const age = parseInt(document.getElementById('age').value, 10);
+      const pension = parseFloat(document.getElementById('pension').value);
+      const annuity_pct = parseFloat(document.getElementById('annuity_pct').value);
+      const accumulation_rate_input = parseFloat(document.getElementById('accumulation_rate').value);
+      const annuity_rate_input = parseFloat(document.getElementById('annuity_rate').value);
+      const resultDiv = document.getElementById('result');
+
+      if (isNaN(age) || age < 18 || age > 59) {
+        resultDiv.innerHTML = '<span style="color:red;">Age must be between 18 and 59.</span>'; return;
+      }
+      if (isNaN(pension) || pension <= 0) {
+        resultDiv.innerHTML = '<span style="color:red;">Please enter a valid monthly pension amount &gt; 0.</span>'; return;
+      }
+      if (isNaN(annuity_pct) || annuity_pct < 40 || annuity_pct > 100) {
+        resultDiv.innerHTML = '<span style="color:red;">Annuity % must be between 40 and 100.</span>'; return;
+      }
+      if (isNaN(accumulation_rate_input) || accumulation_rate_input <= 0 || accumulation_rate_input > 20) {
+        resultDiv.innerHTML = '<span style="color:red;">Annual return during accumulation must be between 0 and 20%.</span>'; return;
+      }
+      if (isNaN(annuity_rate_input) || annuity_rate_input <= 0 || annuity_rate_input > 20) {
+        resultDiv.innerHTML = '<span style="color:red;">Annual return from annuity must be between 0 and 20%.</span>'; return;
+      }
+      if (age >= 60) {
+        resultDiv.innerHTML = '<span style="color:red;">Current age must be less than 60.</span>'; return;
+      }
+
+      const accumulation_rate = accumulation_rate_input / 100;
+      const annuity_rate = annuity_rate_input / 100;
+      const annuity_fraction = annuity_pct / 100;
+
+      const years_to_retirement = 60 - age;
+      const months_to_retirement = years_to_retirement * 12;
+      const annual_pension = pension * 12;
+      const annuity_corpus_needed = annual_pension / annuity_rate;
+      const total_corpus_needed = annuity_corpus_needed / annuity_fraction;
+
+      const monthly_rate = accumulation_rate / 12;
+      const factor = Math.pow(1 + monthly_rate, months_to_retirement) - 1;
+
+      if (factor <= 0) {
+        resultDiv.innerHTML = '<span style="color:red;">Accumulation rate or time period invalid for calculation.</span>'; return;
+      }
+
+      const monthly_contribution = total_corpus_needed * monthly_rate / (factor * (1 + monthly_rate));
+      function formatINR(num) { return num.toLocaleString('en-IN', { maximumFractionDigits: 0 }); }
+      resultDiv.innerHTML =
+        `<b>To get a monthly pension of ₹${formatINR(pension)} from age 60,</b><br>
+        you need to invest:<br><br>
+        <span style="font-size:1.12em;color:#0c7f2a;"><b>₹${formatINR(monthly_contribution)} per month</b></span><br><br>
+        Total corpus needed at retirement: ₹${formatINR(total_corpus_needed)}<br>
+        (of which ₹${formatINR(annuity_corpus_needed)} will be used for annuity)`;
+    }
+    window.onload = calculateNPS;
+  </script>
+</body>
+</html>
